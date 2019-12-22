@@ -71,7 +71,7 @@ _socket:
 # return: void
 _connect:
     mov $42, %rax
-    mov $sockaddr, %rsi
+    lea sockaddr(%rip), %rsi
     mov $addrlen, %rdx
     syscall
     
@@ -85,7 +85,7 @@ _connect:
     # write(STDOUT, msg_connect, msg_connect_len)
     mov $1, %rax
     mov $STDOUT, %rdi
-    mov $msg_connect, %rsi
+    lea msg_connect(%rip), %rsi
     mov $msg_connect_len, %rdx
     syscall
 
@@ -99,7 +99,7 @@ _connect:
 # return: read_cnt
 _read:
     mov $0, %rax
-    mov $buffer, %rsi
+    lea buffer(%rip), %rsi
     mov $buffer_size, %rdx
     syscall
     ret
@@ -112,7 +112,7 @@ _read:
 _write:
     mov $1, %rax
     mov %rsi, %rdx
-    mov $buffer, %rsi
+    lea buffer(%rip), %rsi
     syscall
     ret
 
@@ -128,7 +128,7 @@ _close:
     # write(STDOUT, msg_disconnect, msg_disconnect_len)
     mov $1, %rax
     mov $STDOUT, %rdi
-    mov $msg_disconnect, %rsi
+    lea msg_disconnect(%rip), %rsi
     mov $msg_disconnect_len, %rdx
     syscall
     ret
@@ -168,13 +168,13 @@ _exit:
 # error handlers
 # handle socket syscall error
 _fail_socket:
-    mov $err_socket, %rsi
+    lea err_socket(%rip), %rsi
     mov $err_socket_len, %rdx
     call _fail
 
 # handle connect syscall error
 _fail_connect:
-    mov $err_connect, %rsi
+    lea err_connect(%rip), %rsi
     mov $err_connect_len, %rdx
     call _fail
 

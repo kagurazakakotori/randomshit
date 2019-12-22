@@ -86,7 +86,7 @@ _socket:
     mov (%rsp), %rdi
     mov $SOL_SOCKET, %rsi
     mov $SO_REUSEADDR, %rdx
-    mov $optval, %rcx
+    lea optval(%rip), %rcx
     mov $optval_size, %r8
     syscall
 
@@ -102,7 +102,7 @@ _socket:
 _listen:
     # bind(listenfd, sockaddr, addrlen)
     mov $49, %rax
-    mov $sockaddr, %rsi
+    lea sockaddr(%rip), %rsi
     mov $addrlen, %rdx
     syscall
 
@@ -140,7 +140,7 @@ _accept:
     # write(STDOUT, msg_connect, msg_connect_len)
     mov $1, %rax
     mov $STDOUT, %rdi
-    mov $msg_connect, %rsi
+    lea msg_connect(%rip), %rsi
     mov $msg_connect_len, %rdx
     syscall
 
@@ -154,7 +154,7 @@ _accept:
 # return: read_cnt
 _read:
     mov $0, %rax
-    mov $buffer, %rsi
+    lea buffer(%rip), %rsi
     mov $buffer_size, %rdx
     syscall
     ret
@@ -167,7 +167,7 @@ _read:
 _write:
     mov $1, %rax
     mov %rsi, %rdx
-    mov $buffer, %rsi
+    lea buffer(%rip), %rsi
     syscall
     ret
 
@@ -198,7 +198,7 @@ _close:
     # write(STDOUT, msg_disconnect, msg_disconnect_len)
     mov $1, %rax
     mov $STDOUT, %rdi
-    mov $msg_disconnect, %rsi
+    lea msg_disconnect(%rip), %rsi
     mov $msg_disconnect_len, %rdx
     syscall
     ret
@@ -233,25 +233,25 @@ _exit:
 # error handlers
 # handle socket syscall error
 _fail_socket:
-    mov $err_socket, %rsi
+    lea err_socket(%rip), %rsi
     mov $err_socket_len, %rdx
     call _fail
 
 # handle bind syscall error
 _fail_bind:
-    mov $err_bind, %rsi
+    lea err_bind(%rip), %rsi
     mov $err_bind_len, %rdx
     call _fail
 
 # handle listen syscall error
 _fail_listen:
-    mov $err_listen, %rsi
+    lea err_listen(%rip), %rsi
     mov $err_listen_len, %rdx
     call _fail
 
 # handle accept syscall error
 _fail_accept:
-    mov $err_accept, %rsi
+    lea err_accept(%rip), %rsi
     mov $err_accept_len, %rdx
     call _fail
 
