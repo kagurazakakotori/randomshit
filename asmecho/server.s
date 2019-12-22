@@ -3,13 +3,12 @@
 # caller-saved register are used for local variables
 # callee-saved register are used for global variables
 #
-# compile it with `gcc -c server.s && ld server.o` command
-# use `-o filename` in ld to specify output filename
+# compile it with `gcc -c server.s && ld server.o -o server` command
 
 .global _start
 
 .equ PORT, 0x0f27    # port number in network byte order(big endian), here is 9999 
-.equ IP, 0           # all ip addresses in network byte order, 0 means listen all ips
+.equ IP, 0           # listen ip addresses in network byte order, 0 means all ip
 
 .equ STDOUT, 1
 .equ STDERR, 2
@@ -25,8 +24,8 @@ sockaddr:
     .short 2
     .short PORT
     .long IP
-    .quad 0          # 8 bytes padding zero
-    .equ SA_LEN, . - sockaddr
+    .quad 0    # 8 bytes padding zero
+    .equ addrlen, . - sockaddr
 
 optval:
     .long 1
@@ -68,7 +67,7 @@ buffer:
 # return: listenfd
 _socket:
     # listenfd = socket(AF_INET, SOCK_STREAM, 0)
-    mov $41, %rax    # socket
+    mov $41, %rax
     mov $AF_INET, %rdi
     mov $SOCK_STREAM, %rsi
     mov $0, %rdx
@@ -101,10 +100,10 @@ _socket:
 #     rdi: listenfd(unmodified)
 # return: void
 _listen:
-    # bind(listenfd, sockaddr, SA_LEN)
+    # bind(listenfd, sockaddr, addrlen)
     mov $49, %rax
     mov $sockaddr, %rsi
-    mov $SA_LEN, %rdx
+    mov $addrlen, %rdx
     syscall
 
     cmp $0, %rax
@@ -179,12 +178,12 @@ _write:
 # return: void
 _echo:
     call _read        # read(connfd)
-    mov %rax, %r14    # save read_cnt at r14
-    mov %r14, %rsi    # write(connfd, read_cnt)
+    cmp $0, %rax      # return when read_cnt == 0
+    je .end
+    mov %rax, %rsi    # write(connfd, read_cnt)
     call _write
-
-    cmp $0, %r14
-    jne _echo
+    jmp _echo
+.end:
     ret
 
 # close connfd and print a message
@@ -206,11 +205,10 @@ _close:
 
 # main function
 _start:
-    call _socket	  # listenfd = _socket()
+    call _socket	  # listenfd = socket()
     mov %rax, %r12    # save listenfd at r12
     mov %r12, %rdi    # listen(listenfd)
     call _listen
-
 .loop:
     mov %r12, %rdi    # accept(listenfd)
     call _accept
@@ -268,4 +266,3 @@ _fail:
     # exit(1)
     mov $1, %rdi
     call _exit
-
