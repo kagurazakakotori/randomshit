@@ -205,7 +205,7 @@ _close:
 
 # main function
 _start:
-    call _socket	  # listenfd = socket()
+    call _socket      # listenfd = socket()
     mov %rax, %r12    # save listenfd at r12
     mov %r12, %rdi    # listen(listenfd)
     call _listen

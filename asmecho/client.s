@@ -135,7 +135,7 @@ _close:
 
 # main function
 _start:
-    call _socket	   # connfd = socket()
+    call _socket       # connfd = socket()
     mov %rax, %rbp     # save connfd at rbp
     mov %rbp, %rdi     # connect(connfd)
     call _connect
