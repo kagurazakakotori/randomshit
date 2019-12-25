@@ -1,0 +1,8 @@
+.vscode/*
+
+EFI/*
+
+*.o
+*.so
+*.efi
+*.txt
